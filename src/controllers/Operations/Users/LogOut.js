@@ -1,12 +1,11 @@
-import express from 'express';
-import session from "express-session";
 
 const logOut = (req, res)=> {
+   
     if (req.session?.user) {
 
-        res.json({session: 'Ok!'});
-
-        console.log(req.session.user);
+        req.session.destroy(()=>{
+            res.json({status: 'succed'})
+        })
 
     } else {
 

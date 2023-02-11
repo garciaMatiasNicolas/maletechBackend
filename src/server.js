@@ -1,7 +1,8 @@
 import express from 'express';
-import {routeProducts, routeUsers} from './routes/Routes.js';
+import { routeProducts, routeUsers } from './routes/Routes.js';
 import mongoose from 'mongoose';
 import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import MongoStore from 'connect-mongo';
 
@@ -11,7 +12,10 @@ const Port = process.env.Port || 8080;
 const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true};
 
 // MIDDELWERES
-app.use(cors());
+app.use(cors({
+    credentials:true,
+    origin:'http://localhost:3000'
+}));
 
 app.use(session({
     store: MongoStore.create({
@@ -19,8 +23,8 @@ app.use(session({
         mongoOptions: advancedOptions
     }),
     secret:'secret',
-    resave: false,
-    saveUninitialized:false
+    resave: true,
+    saveUninitialized:true
 }));
 
 app.use(express.urlencoded({extended:true}));
@@ -29,13 +33,13 @@ app.use(express.json());
 
 // USE THE ROUTES THAT I DEVELOP IN ROUTES.JS
 app.use('/products', routeProducts);
+
 app.use('/user', routeUsers);
 
 // INDEX 
 app.get('/', (req, res)=>{
     res.send('Hello World')
 })
-
 
 // CONNECTED TO MY DATABASE IN MONGO CLOUD AND STARTED THE SERVER
 mongoose.connect('mongodb+srv://matigarcia:1708@test.0vglzka.mongodb.net/?retryWrites=true&w=majority')

@@ -1,5 +1,5 @@
 import userModel from "../../../models/usersSchema.js";
-import express from 'express';
+import bcrypt from 'bcryptjs';
 
 const singUp  = async (req, res) => {
     // GET THE DATA FROM THE BODY REQUEST
@@ -7,18 +7,28 @@ const singUp  = async (req, res) => {
 
     // CREATE AN USER FROM MY SCHEMA DECLARED WITH THE REQUEST DATA AND USE A MONGOOSE FUNCTION TO SAVED IT IN MY DATABASE
     try{
-        let user = new userModel({
-            fullname: fullname,
-            identification: identification,
-            email: email,
-            password : password,
-            type: type,
-            phone: phone,
-            location: location,
-            adress: adress
-        });
-        await user.save();
-        res.json(user);
+        let find = userModel.find({email: email})
+
+        if(find._fields !== undefined){
+            res.json({status: 'error'});
+        } else {
+            const hashPassword = await bcrypt.hash(password, 10);
+
+            let user = new userModel({
+                fullname: fullname,
+                identification: identification,
+                email: email,
+                password : hashPassword,
+                type: type,
+                phone: phone,
+                location: location,
+                adress: adress
+            });
+
+            await user.save();
+
+            res.json(user._id);
+        }
     } catch(err){
         console.error(err)
     }

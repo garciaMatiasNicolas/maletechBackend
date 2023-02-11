@@ -22,7 +22,7 @@ routeProducts.put('/:id', controllers.updateProduct);
 // ENDPOINTS WITH REQUESTS USERS
 routeUsers.post('/sign-up', controllers.singUp);
 
-routeUsers.get('/log-out', controllers.logOut);
+routeUsers.delete('/log-out', controllers.logOut);
 
 routeUsers.get('/:id', controllers.getUser);
 
@@ -33,11 +33,12 @@ routeUsers.post('/log-in', async (req, res)=> {
     let user = await userModel.findOne({email: email, password: password});
     
     if(user === null){
-        return res.json({status: 'Error'});
-    } 
+        res.json({status: 'error'});
+    } else {
+        req.session.user = email;
+        res.json({status:'ok', userId: user._id});
+    }
 
-    req.session.user = email;
-    res.json({status: 'Log in succesfull', userLoged: user._id})
 });
 
 // EXPORT THE ROUTE 
