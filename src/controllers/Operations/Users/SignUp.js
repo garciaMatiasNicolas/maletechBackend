@@ -1,5 +1,6 @@
 import userModel from "../../../models/usersSchema.js";
 import bcrypt from 'bcryptjs';
+import { createTransport } from "nodemailer";
 
 const singUp  = async (req, res) => {
     // GET THE DATA FROM THE BODY REQUEST
@@ -13,6 +14,26 @@ const singUp  = async (req, res) => {
             res.json({status: 'error'});
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
+            
+            const transporter = createTransport({
+                service:'gmail',
+                port:'587',
+                auth:{
+                    user:'garciamatias159@gmail.com',
+                    pass:'rmztnxzesgrsnpbx'
+                }
+            });
+
+            const mailOptions = {
+                from: 'garciamatias159@gmail.com',
+                to: 'garciamatias159@gmail.com',
+                subject: 'Nuevo usuario registrado',
+                html: ` 
+                    nombre completo: ${fullname},
+                    email:: ${email},
+                    telefono: ${phone}
+                `
+            };
 
             let user = new userModel({
                 fullname: fullname,
@@ -26,8 +47,8 @@ const singUp  = async (req, res) => {
             });
 
             await user.save();
-
-            res.json(user._id);
+            const info = await transporter.sendMail(mailOptions)
+            res.json(user._id, info);
         }
     } catch(err){
         console.error(err)
